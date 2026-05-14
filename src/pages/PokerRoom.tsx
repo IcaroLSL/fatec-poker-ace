@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { destroySocket, getSocket } from "@/websocket/PokerSocket";
+import { fetchPlayers } from "@/services/api";
 import { usePokerStore } from "@/store/pokerStore";
 import { PokerTable } from "@/components/PokerTable";
 import { ChatPanel } from "@/components/ChatPanel";
@@ -78,6 +79,8 @@ export function PokerRoom() {
   const turn = usePokerStore((s) => s.currentTurn);
   const gameStarted = usePokerStore((s) => s.gameStarted);
   const connection = usePokerStore((s) => s.connection);
+  const setPlayers = usePokerStore((s) => s.setPlayers);
+  const setError = usePokerStore((s) => s.setError);
   const reset = usePokerStore((s) => s.reset);
 
   const [chatOpen, setChatOpen] = useState(false);
@@ -91,6 +94,22 @@ export function PokerRoom() {
       reset();
     };
   }, [roomId, myName, reset]);
+
+  useEffect(() => {
+    if (!roomId || connection !== "connected") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const playersList = await fetchPlayers(roomId);
+        if (!cancelled) setPlayers(playersList);
+      } catch (err) {
+        if (!cancelled) setError(String(err));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [connection, roomId, setPlayers, setError]);
 
   if (!roomId || !myName) {
     return (

@@ -1,7 +1,7 @@
 import type { Player } from "@/types/poker";
 
-export const API_BASE = "http://localhost:8080";
-export const WS_BASE = "ws://localhost:8080/ws";
+export const API_BASE = "http://sink-microphone-jan-downloaded.trycloudflare.com";
+export const WS_BASE = "ws://sink-microphone-jan-downloaded.trycloudflare.com/ws";
 
 export async function fetchPlayers(roomId: string): Promise<Player[]> {
   const res = await fetch(`${API_BASE}/ws/players/${roomId}`);
